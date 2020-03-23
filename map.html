@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>네이버 지도 api 예제 : 간단 예제 : 기본 지도 생성 (기본 컨트롤 + 원하는 위치에)</title>
+<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+</head>
+<body>
+
+<div style="text-align:center; margin:0 0 100px 0; background:#555; line-height:80px;">
+	<a style="color:#fff; font-weight:bold; font-family:tahoma; font-size:20pt;" href="https://ktsmemo.cafe24.com/s/naver_map_v3/330" target="_blank">https://ktsmemo.cafe24.com/s/naver_map_v3/330</a>
+</div>
+
+
+<!-- 예제 시작 -->
+
+<!-- 사용한 지도 Client ID : mn7cwsrvym 은 "localhost" 에서 테스트 용도로 사용할 수 있습니다. -->
+<script src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=mn7cwsrvym"></script>
+
+<!-- 지도가 생성되는 div 영역, id 는 naverMap 으로 설정 -->
+<div id="naverMap" style="margin:0 auto; width:1000px; max-width:100%; height:700px;"></div>
+
+<script>
+
+// naverMap 값은 div 의 id
+new naver.maps.Map('naverMap', {
+
+	// 지도 중앙 위치 : 위도, 경도 설정
+	center : new naver.maps.LatLng( 37.5782709, 126.9770043 ),
+
+	// 줌 설정 : 1~14, 수치가 클수록 지도 확대(줌인), 이 옵션 생략시 기본값 9
+	zoom : 10,
+
+	// 줌 컨트롤 표시, 지정하지 않으면 false 가 기본값
+	zoomControl : true,
+
+	// 줌 컨트롤 오른쪽 위로 위치 설정
+	zoomControlOptions : {
+		position : naver.maps.Position.TOP_RIGHT // 오른쪽 위로 설정
+	},
+
+	// 일반ㆍ위성 지도보기 컨트롤 표시, 지정하지 않으면 false 가 기본값
+	mapTypeControl : true,
+
+});
+
+</script>
+
+<!-- 예제 종료 -->
+
+
+</body>
+</html>
