@@ -16,21 +16,18 @@
       height: 100%;
     }
     </style>
-    <title>브이월드 검색 API 1.0 , 오픈레이어스 클러스터 기능</title>
+    <title> AI 지도2 </title>
   </head>
   <body>
     <div id="map" style="height: 400px;"></div>
     <form id="searchForm" action="#" class="form_data" onsubmit="return false;search();">
-    <input type="hidden" name="pageIndex" value="1" />
-    <input type="hidden" name="pageUnit" value="10" />
-    <input type="hidden" name="apiKey" value="E4A59B05-0CF4-3654-BD0C-A169F70CCB34" />
+    <input type="hidden" name="page" value="1" />
+    <input type="hidden" name="type" value="PLACE" />
+    <input type="hidden" name="request" value="search" />
+    <input type="hidden" name="apiKey" value="2A50B9AE-97A2-33E8-80B2-9D04506F04DE" />
      
     <div>
-        <select name="category">
-            <option value="poi">poi</option>
-            <option value="Juso">address</option>
-        </select>
-        <input type="text" id="searchValue" name="q" value="판교로" style="width: 100px;" /> <a href="javascript:search();" >검색</a> 
+        <input type="text"  id="searchValue" name="query" value="야탑역" style="width: 100px;" /> <a href="javascript:search();" >검색</a> 
         </div>
     </form>
      
@@ -75,26 +72,26 @@
         var search = function(){
             $.ajax({
                 type: "get",
-                url: "http://map.vworld.kr/search.do",
+                url: "http://api.vworld.kr/req/search",
                 data : $('#searchForm').serialize(),
                 dataType: 'jsonp',
                 async: false,
                 success: function(data) {
-                    for(var o in data.LIST){ 
+                    console.log(data);
+                    for(var o in data.response.result.items){ 
                         if(o==0){
-                            move(data.LIST[o].xpos*1,data.LIST[o].ypos*1);
+                            move(data.response.result.items[o].point.x*1,data.response.result.items[o].point.y*1);
                         }
-                         
+                        //Feature 객체에 저장하여 활용 
                         features[o] = new ol.Feature({
-                            geometry: new ol.geom.Point(ol.proj.transform([ data.LIST[o].xpos*1,data.LIST[o].ypos*1],'EPSG:4326', "EPSG:900913")),
-                            juso: data.LIST[o].juso,
-                            RD_NM: data.LIST[o].RD_NM,
-                            ZIP_CL: data.LIST[o].ZIP_CL,
-                            nameDp: data.LIST[o].nameDp,
-                            nameFull: data.LIST[o].nameFull,
-                            njuso: data.LIST[o].njuso
+                            geometry: new ol.geom.Point(ol.proj.transform([ data.response.result.items[o].point.x*1,data.response.result.items[o].point.y*1],'EPSG:4326', "EPSG:900913")),
+                            title: data.response.result.items[o].title,
+                            parcel: data.response.result.items[o].address.parcel,
+                            road: data.response.result.items[o].address.road,
+                            category: data.response.result.items[o].category,
+                            point: data.response.result.items[o].point
                         });
-                        features[o].set("codeName",data.LIST[o].codeName);
+                        features[o].set("id",data.response.result.items[o].id);
                     }
                      
                     var vectorSource = new ol.source.Vector({
@@ -158,6 +155,99 @@
             map.getView().setCenter(ol.proj.transform([ x, y ],'EPSG:4326', "EPSG:900913")); // 지도 이동
             map.getView().setZoom(12);
         }
+         
+         
+         
+         
+         
+        /* 클릭 이벤트 제어 */
+        map.on("click", function(evt) {
+            var coordinate = evt.coordinate //좌표정보
+            var pixel = evt.pixel
+            var cluster_features = [];
+            var features = [];
+             
+            //선택한 픽셀정보로  feature 체크 
+            map.forEachFeatureAtPixel(pixel, function(feature, layer) {
+                 
+                var cluster = feature;
+                if(feature.length>0||cluster.get("features").length){
+                    var cluster_features=cluster.get("features");
+                     
+                    if(cluster_features.length>0){
+                        for (var i=0;i<cluster_features.length;i++) {
+                            console.log(cluster_features[i].getKeys());
+                            features.push(cluster_features[i]);
+                        }
+                         
+                    }
+                     
+                    if(features.length>0){
+                        var title = features[0].get("title");
+                         
+                        if(features.length!=1){
+                            title +="외 "+(features.length -1)+"건";
+                        }
+                        var overlayElement= document.createElement("div"); // 오버레이 팝업설정 
+                         
+                        overlayElement.setAttribute("class", "overlayElement");
+                        overlayElement.setAttribute("style", "background-color: #3399CC; border: 2px solid white; color:white");
+                        overlayElement.setAttribute("onclick", "deleteOverlay('"+features[0].get("id")+"')");
+                        overlayElement.innerHTML="<p>"+title+"</p>";
+                         
+                        var overlayInfo = new ol.Overlay({
+                            id:features[0].get("id"),
+                            element:overlayElement,
+                            offset: [0, -70],
+                            position: ol.proj.transform([features[0].get("point").x*1, features[0].get("point").y*1],'EPSG:4326', "EPSG:900913")
+                        });
+                         
+                        if(features[0].get("id") != null){
+                            map.removeOverlay(map.getOverlayById(features[0].get("id")));
+                        }
+                         
+                        map.addOverlay(overlayInfo);
+                    }
+                }
+            });
+        });
+         
+        /* 선택시 스타일 설정*/
+        var selectFeature = new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 10,
+                stroke: new ol.style.Stroke({
+                    color: '#fff'
+                }),
+                fill: new ol.style.Fill({
+                    color: '#ff0000'
+                })
+            }),
+            text: new ol.style.Text({
+                font : '9px sans-serif',
+                text:'★',
+                fill: new ol.style.Fill({
+                    color: '#fff'
+                })
+            })
+        });
+         
+        var selectInteraction = new ol.interaction.Select({
+            features: function (feature) {
+                return true;
+            },
+                style: [selectFeature]
+            });
+        map.getInteractions().extend([selectInteraction]);
+         
+         
+        /**
+            오버레이 삭제
+        */
+        var deleteOverlay = function(id){
+            map.removeOverlay(map.getOverlayById(id));
+        }
+         
     </script>
   </body>
 </html>
