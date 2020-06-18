@@ -2,12 +2,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 <title>AI 지도</title>
 <script type="text/javascript" src="https://map.vworld.kr/js/vworldMapInit.js.do?version=2.0&apiKey=2A50B9AE-97A2-33E8-80B2-9D04506F04DE"></script>
 </head>
 
 <body>
- <div id="vmap" style="width:100%;height:350px;left:0px;top:0px"></div>
+ <div id="vmap" style="width:100%;height:550px;left:0px;top:0px"></div>
  <div id="buttons">
   <button type="button" onclick="javascript:setMode(vw.ol3.BasemapType.GRAPHIC);" >배경지도</button>
   <button type="button" onclick="javascript:setMode(vw.ol3.BasemapType.GRAPHIC_GRAY);" >회색사진</button>
@@ -30,6 +31,30 @@
   function setMode(basemapType) {
       vmap.setBasemapType(basemapType);         
      }
+  var options = {
+      map: vmap
+    , site : vw.ol3.SiteAlignType.TOP_LEFT   //"top-left"
+    , vertical : true
+    , collapsed : false
+    , collapsible : false
+  };
+    
+  var _toolBtnList = [
+             new vw.ol3.button.Init(vmap),
+             new vw.ol3.button.ZoomIn(vmap),
+             new vw.ol3.button.ZoomOut(vmap),
+             new vw.ol3.button.DragZoomIn(vmap),
+             new vw.ol3.button.DragZoomOut(vmap) ,
+             new vw.ol3.button.Pan(vmap),    
+             new vw.ol3.button.Prev(vmap),
+             new vw.ol3.button.Next(vmap),
+             new vw.ol3.button.Full(vmap),
+             new vw.ol3.button.Distance(vmap),
+             new vw.ol3.button.Area(vmap)  
+            ];
+  var toolBar = new vw.ol3.control.Toolbar(options);
+  toolBar.addToolButtons(_toolBtnList);
+  vmap.addControl(toolBar);
  </script>
 </body>
 </html>
