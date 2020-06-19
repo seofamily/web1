@@ -58,7 +58,7 @@
  </script>
  <button onclick="openTextFile()">Open</button>
   <div id="output">...</div>
-  function openTextFile() {
+  <script> function openTextFile() {
     var input = document.createElement("input");
     input.type = "file";
     input.accept = "text/plain"; // 확장자가 xxx, yyy 일때, ".xxx, .yyy"
@@ -73,6 +73,6 @@ function processFile(file) {
         output.innerText = reader.result;
     };
     reader.readAsText(file, /* optional */ "euc-kr");
-}
+} </script>
 </body>
 </html>
