@@ -54,8 +54,9 @@
             ];
   var toolBar = new vw.ol3.control.Toolbar(options);
   toolBar.addToolButtons(_toolBtnList);
-  vmap.addControl(toolBar);
-  <button onclick="openTextFile()">Open</button>
+  vmap.addControl(toolBar);  
+ </script>
+ <button onclick="openTextFile()">Open</button>
   <div id="output">...</div>
   function openTextFile() {
     var input = document.createElement("input");
@@ -73,6 +74,5 @@ function processFile(file) {
     };
     reader.readAsText(file, /* optional */ "euc-kr");
 }
- </script>
 </body>
 </html>
